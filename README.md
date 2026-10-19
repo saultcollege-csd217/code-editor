@@ -1,2 +1,3 @@
-# code-editor
-A lightweight code editor for tests
+# Code Editor
+
+A lightweight code editor for use during tests.
