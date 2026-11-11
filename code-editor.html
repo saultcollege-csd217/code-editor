@@ -102,6 +102,15 @@
   import { html } from
     "https://esm.sh/@codemirror/lang-html@6";
 
+  import { keymap } from
+    "https://esm.sh/@codemirror/view@6";
+
+  import { indentMore, indentLess } from
+    "https://esm.sh/@codemirror/commands@6";
+
+  import { indentUnit } from
+    "https://esm.sh/@codemirror/language@6";
+
   const STORAGE_KEY = "student-html-editor";
   const SIZE_KEY = "student-editor-size";
 
@@ -132,9 +141,26 @@
 
   let saveTimer;
 
+  // Tab inserts spaces at the cursor, or indents every selected line.
+  function insertIndent(view) {
+    const { state } = view;
+    if (state.selection.ranges.some(range => !range.empty)) {
+      return indentMore(view);
+    }
+
+    view.dispatch(state.update(
+      state.replaceSelection(state.facet(indentUnit)),
+      { scrollIntoView: true, userEvent: "input" }
+    ));
+    return true;
+  }
+
   const editor = new EditorView({
     doc: localStorage.getItem(STORAGE_KEY) ?? starter,
     extensions: [
+      keymap.of([
+        { key: "Tab", run: insertIndent, shift: indentLess }
+      ]),
       basicSetup,
       html(),
       EditorView.updateListener.of(update => {
